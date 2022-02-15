@@ -1,20 +1,30 @@
 const router = require('express').Router();
 const {
+  aliasTopTours,
   getAllTours,
-  createTour,
+  checkBody,
   getTour,
+  createTour,
   editTour,
   deleteTour,
-  checkID,
-  checkData,
+  getTourStats
 } = require('../controllers/tourController');
 
-router.get('/', getAllTours);
-router.post('/', checkData, createTour);
+// router.param('id', checkID);
 
-router.param('id', checkID);
-router.get('/:id', getTour);
-router.patch('/:id', editTour);
-router.delete('/:id', deleteTour);
+router.route('/top-5-cheap')
+  .get(aliasTopTours, getAllTours);
+
+router.route('/tour-stats')
+  .get(getTourStats);
+
+router.route('/')
+  .get(getAllTours)
+  .post(checkBody, createTour);
+
+router.route('/:id')
+  .get(getTour)
+  .patch(editTour)
+  .delete(deleteTour);
 
 module.exports = router;
