@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const {protect, restrictTo} = require('../controllers/authController');
 const {
   aliasTopTours,
   getAllTours,
@@ -7,8 +8,10 @@ const {
   createTour,
   editTour,
   deleteTour,
-  getTourStats
+  getTourStats,
+  getMonthlyPlan
 } = require('../controllers/tourController');
+
 
 // router.param('id', checkID);
 
@@ -18,13 +21,16 @@ router.route('/top-5-cheap')
 router.route('/tour-stats')
   .get(getTourStats);
 
+router.route('/monthly-plan/:year')
+  .get(getMonthlyPlan);
+
 router.route('/')
-  .get(getAllTours)
+  .get(protect, getAllTours)
   .post(checkBody, createTour);
 
 router.route('/:id')
   .get(getTour)
   .patch(editTour)
-  .delete(deleteTour);
+  .delete(protect, restrictTo(['admin', 'lead-guide']), deleteTour);
 
 module.exports = router;
