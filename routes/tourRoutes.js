@@ -26,7 +26,7 @@ router.route('/monthly-plan/:year')
 
 router.route('/')
   .get(protect, getAllTours)
-  .post(checkBody, createTour);
+  .post(createTour);
 
 router.route('/:id')
   .get(getTour)

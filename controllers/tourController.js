@@ -28,10 +28,6 @@ exports.getAllTours = customizedAsync(async (req, res, next) => {
   });
 });
 
-exports.checkBody = (req, res, next) => {
-  next();
-};
-
 exports.getTour = customizedAsync(async (req, res, next) => {
   const tour = await Tour.findById(req.params.id);
   if (!tour) {
