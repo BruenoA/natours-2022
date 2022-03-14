@@ -3,6 +3,7 @@ const path = require('path');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
 const toursRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const AppError = require('./utils/appError');
@@ -16,6 +17,12 @@ if (process.env.NODE_ENV === 'development') {
 } else {
   app.use(morgan('tiny'));
 }
+
+const limiter = rateLimit({
+  max: 100,
+  windowMs: 60 * 60 * 1000,
+  message: 'Too many requests, please try again later',
+});
 
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -33,6 +40,7 @@ mongoose
     console.log('DB connected');
   });
 
+app.use('/api', limiter);
 app.use('/api/v1/tours', toursRouter);
 app.use('/api/v1/users', userRouter);
 

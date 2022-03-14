@@ -33,3 +33,25 @@ exports.updateMe = customizedAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.deleteMe = customizedAsync(async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user.id, {
+    active: false,
+  });
+
+  res.status(204).json({
+    status: 'success',
+    data: undefined,
+  });
+});
+
+exports.getAllUsers = customizedAsync(async (req, res, next) => {
+  const users = await User.find();
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      users,
+    },
+  });
+});
