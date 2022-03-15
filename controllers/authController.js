@@ -5,6 +5,7 @@ const AppError = require('../utils/appError');
 const sendMail = require('../utils/email');
 const { promisify } = require('util');
 const crypto = require('crypto');
+const { contentSecurityPolicy } = require('helmet');
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -57,7 +58,7 @@ exports.login = customizedAsync(async (req, res, next) => {
     return next(new AppError('Please enter a valid email and password', 400));
   }
 
-  const user = await User.findOne({ email: email }).select('password');
+  const user = await User.findOne({ email: email }).select('+password');
 
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Invalid email or password', 401));

@@ -3,32 +3,51 @@ const path = require('path');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
+const helmet = require('helmet');
+const xss = require('xss-clean');
+const hpp = require('hpp');
+const mongoSanitizer = require('express-mongo-sanitize');
 const rateLimit = require('express-rate-limit');
 const toursRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
+const reviewRouter = require('./routes/reviewRoutes');
 const AppError = require('./utils/appError');
 const ErrorHandler = require('./utils/errorHandler');
 
+/* Config */
 require('dotenv').config({ path: './.env' });
+
+/* App */
 const app = express();
 
+/* Logging */
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 } else {
   app.use(morgan('tiny'));
 }
 
+/* Request limit */
 const limiter = rateLimit({
   max: 100,
   windowMs: 60 * 60 * 1000,
   message: 'Too many requests, please try again later',
 });
 
+/* Cross origin resource sharing */
 app.use(cors());
+
+/* Set secure http headers */
+app.use(helmet());
+
+/* Server static files */
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json());
+
+/* Parse post data to body */
+app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true }));
 
+/* Database connection */
 mongoose
   .connect(process.env.DB_CONNECT, {
     useNewUrlParser: true,
@@ -40,22 +59,42 @@ mongoose
     console.log('DB connected');
   });
 
+/* Data sanitizer */
+app.use(mongoSanitizer());
+app.use(xss());
+
+/* Parameter pollution prevention */
+app.use(
+  hpp({
+    whitelist: [
+      'duration',
+      'ratingsAverage',
+      'maxGroupSizem',
+      'difficulty',
+      'price',
+    ],
+  })
+);
+
+/* Routing */
 app.use('/api', limiter);
+app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/tours', toursRouter);
 app.use('/api/v1/users', userRouter);
 
+/* Error handling */
 app.all('*', (req, res, next) => {
   next(new AppError('Invalid page requested', 404));
 });
-
 app.use(ErrorHandler);
 
+/* Server */
 const PORT = process.env.PORT || 3000;
-
 const server = app.listen(PORT, () => {
   console.log(`${process.env.NODE_ENV} server started on port ${PORT}`);
 });
 
+/* Unhandled rejection handling */
 process.on('unhandledRejection', (err) => {
   console.log(err.name, err.message);
   console.log('Shutting down due to unhandledRejection...');
