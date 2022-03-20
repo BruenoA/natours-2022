@@ -16,7 +16,14 @@ const {
   protect
 } = require('../controllers/authController');
 
-const { getAllUsers, updateMe, deleteMe } = require('../controllers/userController');
+const { 
+  getAllUsers, 
+  updateMe, 
+  deleteMe, 
+  deleteUser, 
+  updateUser,
+  getUser
+} = require('../controllers/userController');
 
 
 router.post('/signup', signup);
@@ -31,10 +38,10 @@ router.route('/')
   .get(getAllUsers);
   // .post(createUser);
 
-// router.route('/:id')
-//   .get(getUser)
-//   .patch(updateUser)
-//   .delete(deleteUser);
+router.route('/:id')
+  .get(getUser)
+  .patch(updateUser)
+  .delete(deleteUser);
 
 
 module.exports = router

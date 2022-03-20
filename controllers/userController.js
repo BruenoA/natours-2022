@@ -1,6 +1,7 @@
 const User = require('../models/userModel');
 const customizedAsync = require('../utils/customizedAsync');
 const AppError = require('../utils/appError');
+const Factory = require('./controllerFactory');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -55,3 +56,7 @@ exports.getAllUsers = customizedAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.getUser = Factory.getOne(User);
+exports.deleteUser = Factory.deleteOne(User);
+exports.updateUser = Factory.updateOne(User);

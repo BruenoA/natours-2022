@@ -2,6 +2,7 @@ const Tour = require('../models/tourModel');
 const ApiFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
 const customizedAsync = require('../utils/customizedAsync');
+const Factory = require('./controllerFactory');
 
 exports.aliasTopTours = customizedAsync(async (req, res, next) => {
   req.query.limit = '5';
@@ -25,56 +26,6 @@ exports.getAllTours = customizedAsync(async (req, res, next) => {
     data: {
       tours,
     },
-  });
-});
-
-exports.getTour = customizedAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id).populate('reviews');
-  if (!tour) {
-    return next(new AppError(`Tour ID ${req.params.id} not found`, 404));
-  }
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour,
-    },
-  });
-});
-
-exports.createTour = customizedAsync(async (req, res, next) => {
-  const newTour = await Tour.create(req.body);
-
-  res.status(201).json({
-    status: 'success',
-    data: {
-      tour: newTour,
-    },
-  });
-});
-
-exports.editTour = customizedAsync(async (req, res, next) => {
-  const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
-
-  res.status(201).json({
-    status: 'success',
-    data: {
-      tour,
-    },
-  });
-});
-
-exports.deleteTour = customizedAsync(async (req, res, next) => {
-  const tour = await Tour.findByIdAndDelete(req.params.id);
-
-  if (!tour) {
-    return next(new AppError(`Tour ID ${req.params.id} not found`, 404));
-  }
-
-  res.status(204).json({
-    status: 'success',
   });
 });
 
@@ -163,3 +114,8 @@ exports.getMonthlyPlan = customizedAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.getTour = Factory.getOne(Tour, { path: 'reviews' });
+exports.createTour = Factory.createOne(Tour);
+exports.deleteTour = Factory.deleteOne(Tour);
+exports.editTour = Factory.updateOne(Tour);

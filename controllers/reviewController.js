@@ -1,9 +1,15 @@
 const Review = require('../models/reviewModel');
 const AppError = require('../utils/appError');
 const customizedAsync = require('../utils/customizedAsync');
+const Factory = require('./controllerFactory');
 
 exports.getAllReviews = customizedAsync(async (req, res, next) => {
-  const reviews = await Review.find();
+  let filter = {};
+  if (req.params.tourId) {
+    filter.tour = req.params.tourId;
+  }
+
+  const reviews = await Review.find(filter);
 
   res.status(200).json({
     status: 'success',
@@ -14,50 +20,20 @@ exports.getAllReviews = customizedAsync(async (req, res, next) => {
   });
 });
 
-exports.getReview = customizedAsync(async (req, res, next) => {
-  const review = await Review.findById(req.params.id);
-
-  if (!review) {
-    return next(new AppError(`Review ID ${req.params.id} not found`, 404));
+exports.createReviewUtil = (req, res, next) => {
+  if (!req.body.tour) {
+    req.body.tour = req.params.tourId;
   }
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      review,
-    },
-  });
-});
-
-exports.createReview = customizedAsync(async (req, res, next) => {
-  const review = await Review.create(req.body);
-  res.status(201).json({
-    status: 'success',
-    data: {
-      review,
-    },
-  });
-});
-
-exports.updateReview = customizedAsync(async (req, res, next) => {
-  const review = await Review.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-  });
-
-  res.status(201).json({
-    status: 'success',
-    data: {
-      review,
-    },
-  });
-});
-
-exports.deleteReview = customizedAsync(async (req, res, next) => {
-  const review = await Review.findByIdAndDelete(req.params.id);
-  if (!review) {
-    return next(new AppError(`Review ID ${req.params.id} not found`, 404));
+  if (!req.body.user) {
+    req.body.user = req.user.id;
   }
-  res.status(204).json({
-    status: 'success',
-  });
-});
+  next();
+};
+
+exports.getReview = Factory.getOne(Review);
+
+exports.createReview = Factory.createOne(Review);
+
+exports.updateReview = Factory.updateOne(Review);
+
+exports.deleteReview = Factory.deleteOne(Review);

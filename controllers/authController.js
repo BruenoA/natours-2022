@@ -5,7 +5,6 @@ const AppError = require('../utils/appError');
 const sendMail = require('../utils/email');
 const { promisify } = require('util');
 const crypto = require('crypto');
-const { contentSecurityPolicy } = require('helmet');
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
