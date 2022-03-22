@@ -30,15 +30,15 @@ router.route('/tour-stats')
   .get(getTourStats);
 
 router.route('/monthly-plan/:year')
-  .get(getMonthlyPlan);
+  .get(protect, restrictTo(['admin', 'lead-guide', 'guide']), getMonthlyPlan);
 
 router.route('/')
-  .get(protect, getAllTours)
-  .post(createTour);
+  .get(getAllTours)
+  .post(protect, restrictTo(['admin', 'lead-guide']), createTour);
 
 router.route('/:id')
   .get(getTour)
-  .patch(editTour)
+  .patch(protect, restrictTo(['admin', 'lead-guide']), editTour)
   .delete(protect, restrictTo(['admin', 'lead-guide']), deleteTour);
 
 module.exports = router;

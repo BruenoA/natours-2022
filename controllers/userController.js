@@ -13,6 +13,11 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
+};
+
 exports.updateMe = customizedAsync(async (req, res, next) => {
   if (req.body.password || req.body.password) {
     return next(
@@ -47,7 +52,13 @@ exports.deleteMe = customizedAsync(async (req, res, next) => {
 });
 
 exports.getAllUsers = customizedAsync(async (req, res, next) => {
-  const users = await User.find();
+  let users;
+  console.log(req.query.role);
+  if (req.query.role) {
+    users = await User.find({ role: req.query.role });
+  } else {
+    users = await User.find();
+  }
 
   res.status(200).json({
     status: 'success',
