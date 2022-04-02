@@ -66,6 +66,7 @@ userSchema.pre(/^find/, function (next) {
   next();
 });
 
+/* Verify password */
 userSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword

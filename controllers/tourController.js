@@ -115,6 +115,30 @@ exports.getMonthlyPlan = customizedAsync(async (req, res, next) => {
   });
 });
 
+exports.getToursWithin = customizedAsync(async (req, res, next) => {
+  const { distance, latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(',');
+  const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+
+  if (!lat || !lng) {
+    return next(new AppError('Invalid latitude or longitude', 400));
+  }
+
+  const tours = await Tour.find({
+    startLocation: {
+      $geoWithin: {
+        $centerSphere: [[lng, lat], radius],
+      },
+    },
+  });
+
+  res.status(200).json({
+    status: 'success',
+    results: tours.length,
+    data: tours,
+  });
+});
+
 exports.getTour = Factory.getOne(Tour, { path: 'reviews' });
 exports.createTour = Factory.createOne(Tour);
 exports.deleteTour = Factory.deleteOne(Tour);

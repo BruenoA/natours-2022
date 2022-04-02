@@ -37,8 +37,10 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
+/* Index for avoiding duplicate reviews */
 reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
 
+/* Populate review referential data */
 reviewSchema.pre(/^find/, function (next) {
   this.find().populate({
     path: 'user',
@@ -48,6 +50,7 @@ reviewSchema.pre(/^find/, function (next) {
   next();
 });
 
+/* Static function to calculate average rating*/
 reviewSchema.statics.calcAverageRatings = async function (tourId) {
   const stats = await this.aggregate([
     {
@@ -78,6 +81,7 @@ reviewSchema.pre(/^findOneAnd/, async function (next) {
 });
 
 reviewSchema.post(/^findOneAnd/, async function () {
+  /* At this time, the review is updated but not saved */
   await this.preUpdatedReview.constructor.calcAverageRatings(
     this.preUpdatedReview.tour
   );
