@@ -59,16 +59,25 @@ module.exports = (err, req, res, next) => {
   } else {
     let error = err;
 
-    if (err.name === 'CastError') {
-      error = handleCastError(err);
-    } else if (err.code === 11000) {
+    switch (err.name) {
+      case 'CastError':
+        error = handleCastError(err);
+        break;
+      case 'ValidationError':
+        error = handleValidationError(err);
+        break;
+      case 'JsonWebTokenError':
+        error = handleJsonWebTokenError(err);
+        break;
+      case 'TokenExpiredError':
+        error = handleTokenExpiredError(err);
+        break;
+      default:
+        break;
+    }
+
+    if (err.code === 11000) {
       error = handleFieldError(err);
-    } else if (err.name === 'ValidationError') {
-      error = handleValidationError(err);
-    } else if (err.name === 'JsonWebTokenError') {
-      error = handleJsonWebTokenError(err);
-    } else if (err.name === 'TokenExpiredError') {
-      error = handleTokenExpiredError(err);
     }
 
     sendErorProd(error, res);
