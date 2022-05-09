@@ -11,6 +11,7 @@ const rateLimit = require('express-rate-limit');
 const toursRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
+const viewRouter = require('./routes/viewRoutes');
 const AppError = require('./utils/appError');
 const ErrorHandler = require('./utils/errorHandler');
 
@@ -19,6 +20,9 @@ require('dotenv').config({ path: './.env' });
 
 /* App */
 const app = express();
+
+app.set('view engine', 'pug');
+app.set('views' , path.join(__dirname, 'views'));
 
 /* Logging */
 if (process.env.NODE_ENV === 'development') {
@@ -80,6 +84,7 @@ app.use(
 /* Routing */
 app.use('/api', limiter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/', viewRouter);
 app.use('/api/v1/tours', toursRouter);
 app.use('/api/v1/users', userRouter);
 
