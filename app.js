@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cookieParser = require('cookie-parser');
 const mongoSanitizer = require('express-mongo-sanitize');
 const rateLimit = require('express-rate-limit');
 const toursRouter = require('./routes/tourRoutes');
@@ -43,6 +44,15 @@ app.use(cors());
 
 /* Set secure http headers */
 app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    useDefaults: true,
+    directives: {
+      "script-src": ["'self'", "https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.2/axios.min.js","js.stripe.com/v3/",'unsafe-inline','unsafe-eval'],
+      "style-src": ["'self'","fonts.googleapis.com/css",'unsafe-inline','unsafe-eval'],
+    },
+  })
+);
 
 /* Server static files */
 app.use(express.static(path.join(__dirname, 'public')));
@@ -50,6 +60,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 /* Parse post data to body */
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 /* Database connection */
 mongoose
@@ -108,3 +119,5 @@ process.on('unhandledRejection', (err) => {
     process.exit(1);
   });
 });
+
+//CSP

@@ -1,8 +1,7 @@
 /* eslint-disable */
-import keys from '../../config/keys';
 
 export const displayMap = locations => {
-  mapboxgl.accessToken = keys.mapBoxAccessToken;
+  mapboxgl.accessToken = 'pk.eyJ1Ijoic3Vwb2xlbyIsImEiOiJjbDJ6c2x3NmYwMHduM2JxdWhmank5aWloIn0.PuKnJ0oBPYOXLrGv6k-Emw';
   var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/rasedmia/ck3cmgrsx1qa61cpiuonp0dja',
