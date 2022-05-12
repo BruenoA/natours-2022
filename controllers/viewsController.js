@@ -22,3 +22,8 @@ exports.getTour = customizedAsync(async (req,res,next)=>{
       tour 
     });
 });
+exports.getLogin = customizedAsync(async (req,res,next)=>{
+    res.status(200).render('login', {
+      title: 'Login to your account'
+    });
+});

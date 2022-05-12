@@ -66,6 +66,13 @@ exports.login = customizedAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
+exports.logout =  (req,res)=>{
+  res.cookie('jwt', 'loggedout',{
+    expires: new Date(Date.now() + 10*1000),
+    httpOnly: true
+  });
+  res.status(200).json( { status:'success' } );
+};
 exports.protect = customizedAsync(async (req, res, next) => {
   let token;
   if (
@@ -73,6 +80,8 @@ exports.protect = customizedAsync(async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies.jwt){
+    token = req.cookies.jwt;
   }
 
   if (!token) {
@@ -100,6 +109,37 @@ exports.protect = customizedAsync(async (req, res, next) => {
 
   next();
 });
+
+exports.isLoggedIn = async (req, res, next) => {
+  if (req.cookies.jwt){
+    try{
+
+    const accessToken = await promisify(jwt.verify)(
+      req.cookies.jwt,
+      process.env.JWT_SECRET
+    );
+
+    const user = await User.findOne({ _id: accessToken.id });
+
+    if (!user) {
+      return next(new AppError('User not exists. Please login again!', 401));
+    }
+
+    if (user.changePasswordAfter(accessToken.iat)) {
+      return next(
+        new AppError('Password has been changed. Please login again!', 401)
+      );
+    }
+
+    res.locals.user = user;
+    return next();
+  } catch(err){
+      return next();
+    }
+  }
+  next();
+};
+
 
 exports.restrictTo = (roles) => {
   return (req, res, next) => {
