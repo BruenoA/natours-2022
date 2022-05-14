@@ -1,4 +1,5 @@
 const express = require('express');
+const multer = require('multer')
 const path = require('path');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -59,7 +60,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 /* Parse post data to body */
 app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit:'10kb' }));
 app.use(cookieParser());
 
 /* Database connection */
