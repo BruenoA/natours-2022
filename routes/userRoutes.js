@@ -1,11 +1,4 @@
 const router = require('express').Router();
-// const { 
-//   getAllUsers, 
-//   createUser, 
-//   getUser, 
-//   deleteUser, 
-//   updateUser 
-// } = require('../controllers/userController')
 
 const {
   signup,
@@ -25,7 +18,9 @@ const {
   getMe, 
   deleteUser, 
   updateUser,
-  getUser
+  getUser,
+  uploadUserPhoto,
+  resizeUserPhoto
 } = require('../controllers/userController');
 
 
@@ -38,7 +33,7 @@ router.patch('/resetPassword/:token', resetPassword);
 router.use(protect);
 
 router.patch('/updateMyPassword', updatePassword);
-router.patch('/updateMe', updateMe);
+router.patch('/updateMe', uploadUserPhoto, resizeUserPhoto, updateMe);
 router.delete('/deleteMe', deleteMe);
 
 router.get('/me', getMe, getUser);

@@ -33,7 +33,7 @@ const createSendToken = (user, statusCode, res) => {
     status: 'success',
     token,
     data: {
-      user,
+      user
     },
   });
 };
@@ -104,9 +104,8 @@ exports.protect = customizedAsync(async (req, res, next) => {
       new AppError('Password has been changed. Please login again!', 401)
     );
   }
-
   req.user = user;
-
+  res.locals.user = user;
   next();
 });
 

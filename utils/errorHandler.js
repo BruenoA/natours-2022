@@ -1,27 +1,50 @@
 const AppError = require('./appError');
 
-const sendErrorDev = (err, res) => {
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
-    error: err,
-    stack: err.stack,
+const sendErrorDev = (err,req, res) => {
+  //API
+  if(req.originalUrl.startsWith('./api')){
+    return res.status(err.statusCode).json({
+      status: err.status,
+      message: err.message,
+      error: err,
+      stack: err.stack,
+    });
+  }
+  console.error('*** Occured error: ', err);
+    //Rendered Website
+  return res.status(err.statusCode).render('error',{
+      title: 'Something went wrong!',
+      msg: err.message
   });
 };
 
-const sendErorProd = (err, res) => {
-  if (err.isOperational) {
-    res.status(err.statusCode).json({
-      status: err.status,
-      message: err.message,
-    });
-  } else {
+const sendErorProd = (err,req, res) => {
+  //API
+  if(req.originalUrl.startsWith('./api')){
+    if (err.isOperational) {
+      return res.status(err.statusCode).json({
+        status: err.status,
+        message: err.message
+      });
+    } 
     console.error('*** Occured error: ', err);
-    res.status(500).json({
+    return res.status(500).json({
       status: 'error',
-      message: 'Something went wrong',
+      message: 'Something went wrong!'
     });
   }
+  //RENDER WEBSITE
+  if (err.isOperational) {
+    return res.status(err.statusCode).render('error',{
+      title: 'Something went wrong!',
+      msg: err.message
+    });
+  } 
+  console.error('*** Occured error: ', err);
+  return res.status(err.statusCode).render('error',{
+    title: 'Something went wrong!',
+    msg: 'Please try again later.'
+  });
 };
 
 const handleCastError = (err) => {
@@ -55,10 +78,10 @@ module.exports = (err, req, res, next) => {
   err.message = err.message || 'Unknown internal error';
 
   if (process.env.NODE_ENV !== 'production') {
-    sendErrorDev(err, res);
+    sendErrorDev(err,req, res);
   } else {
-    let error = err;
-
+    let error =err;
+    //error.message = err.message;
     switch (err.name) {
       case 'CastError':
         error = handleCastError(err);
@@ -67,10 +90,10 @@ module.exports = (err, req, res, next) => {
         error = handleValidationError(err);
         break;
       case 'JsonWebTokenError':
-        error = handleJsonWebTokenError(err);
+        error = handleJsonWebTokenError();
         break;
       case 'TokenExpiredError':
-        error = handleTokenExpiredError(err);
+        error = handleTokenExpiredError();
         break;
       default:
         break;
@@ -80,6 +103,6 @@ module.exports = (err, req, res, next) => {
       error = handleFieldError(err);
     }
 
-    sendErorProd(error, res);
+    sendErorProd(error,req, res);
   }
 };
