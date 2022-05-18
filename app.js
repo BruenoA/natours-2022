@@ -13,6 +13,7 @@ const rateLimit = require('express-rate-limit');
 const toursRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
+const bookingRouter = require('./routes/bookingRoutes');
 const viewRouter = require('./routes/viewRoutes');
 const AppError = require('./utils/appError');
 const ErrorHandler = require('./utils/errorHandler');
@@ -45,15 +46,15 @@ app.use(cors());
 
 /* Set secure http headers */
 app.use(helmet());
-app.use(
-  helmet.contentSecurityPolicy({
-    useDefaults: true,
-    directives: {
-      "script-src": ["'self'", "https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.2/axios.min.js","js.stripe.com/v3/",'unsafe-inline','unsafe-eval'],
-      "style-src": ["'self'","fonts.googleapis.com/css",'unsafe-inline','unsafe-eval'],
-    },
-  })
-);
+// app.use(
+//   helmet.contentSecurityPolicy({
+//     useDefaults: true,
+//     directives: {
+//       "script-src": ["'self'", "js.stripe.com/v3/",'unsafe-inline','unsafe-eval'],
+//       "style-src": ["'self'","fonts.googleapis.com/css",'unsafe-inline','unsafe-eval'],
+//     },
+//   })
+// );
 
 /* Server static files */
 app.use(express.static(path.join(__dirname, 'public')));
@@ -99,6 +100,7 @@ app.use('/api/v1/reviews', reviewRouter);
 app.use('/', viewRouter);
 app.use('/api/v1/tours', toursRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/bookings', bookingRouter);
 
 /* Error handling */
 app.all('*', (req, res, next) => {
